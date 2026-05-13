@@ -1,0 +1,41 @@
+# Multi-AI-Stream - Core Dependencies
+# 核心依赖包列表
+
+# GUI Framework
+PyQt6>=6.5.0
+
+# OBS Control
+python-obs-studio>=2.3
+obs-websocket-py>=1.1
+
+# Data & ORM
+sqlalchemy>=2.0.0
+pyyaml>=6.0
+requests>=2.31.0  # LLM API requests
+
+# AI/ML Frameworks  
+torch>=2.0.0
+transformers>=4.35.0
+sentencepiece>=0.1.99
+onnxruntime-gpu>=1.16.0  # GPU 加速推理
+
+# TTS Engines
+coqui-tts>=0.24.0
+edge-tts>=6.1.0
+
+# Audio Processing
+pydub>=0.25.0
+soundfile>=0.12.0
+
+# Image/Video Processing
+opencv-python>=4.8.0
+numpy>=1.24.0
+pillow>=10.0.0
+
+# Task Queue (Optional)
+celery>=5.3.0
+redis>=5.0.0
+
+# Utilities
+python-dateutil>=2.8.0
+typing-extensions>=4.8.0

@@ -1,0 +1,140 @@
+# Multi-AI-Stream - Main Configuration
+# 多平台数字人直播系统配置
+
+app:
+  name: "Multi-AI-Stream"
+  version: "1.0.0"
+  log_level: "INFO"  # DEBUG / INFO / WARNING / ERROR
+  
+# OBS Studio WebSocket 连接配置
+obs:
+  host: "localhost"      # OBS 主机地址
+  port: 4455             # WebSocket 端口
+  password: ""           # WebSocket 密码 (可选)
+
+# 数字人生成引擎配置
+avatar:
+  default_engine: "live_portrait"  # live_portrait / wav2lip
+  models_path: "./assets/avatars"  # 模型文件目录
+  
+  # LivePortrait 特定配置
+  live_portrait:
+    batch_size: 1
+    resize: true
+    
+  # Wav2Lip 特定配置  
+  wav2lip:
+    height: 512
+    width: 512
+    fps: 25
+
+# LLM 文案生成配置
+llm:
+  mode: "remote"  # remote (远程 API) / local (本地模型)
+  
+  # 远程 API 模式配置
+  remote:
+    provider: "deepseek"  # deepseek / other
+    api_key: ""           # DeepSeek API Key
+    base_url: "https://api.deepseek.com/v1"  # API 基础 URL
+    model: "deepseek-chat"  # 模型名称
+    
+  # 本地模型配置 (当 mode=local 时使用)
+  local:
+    model: "qwen/Qwen-7B-Chat-GGUF"  # 本地模型路径或 HuggingFace 模型名
+    quantization: "q4_0"              # q4_0 / q5_k_m / q8_0
+    
+  # 提示词配置 (两种模式通用)
+  system_prompt: |
+    你是一位专业的二手房车销售专家，擅长用生动的语言介绍房产和房车产品。你的任务是生成适合数字人直播的讲解文案。
+  
+  output_template: |
+    【开场】(5-10 秒)
+    {opening}
+
+    【核心卖点】(20-30 秒)
+    {highlights}
+
+    【互动引导】(5-10 秒)
+    {call_to_action}
+
+# TTS 语音合成配置
+tts:
+  engine: "edge"  # coqui / edge / iflytek
+  
+  # Coqui-TTS 配置
+  coqui:
+    model: "tts_models/multilingual/multi-dataset/xtts_v2"
+    language: "zh"
+  
+  # Edge-TTS 配置 (远程免费 API，无需额外配置)
+  edge:
+    voice: "zh-CN-XiaoxiaoNeural"  # zh-CN-XiaoxiaoNeural / zh-CN-YunxiNeural
+  
+  # 讯飞 API 配置 (商用)
+  iflytek:
+    app_id: ""
+    api_key: ""
+    api_secret: ""
+
+# 数据库配置
+database:
+  type: "sqlite"  # sqlite / postgresql
+  
+  # SQLite 配置
+  sqlite:
+    path: "./data/multi_ai_stream.db"
+    
+  # PostgreSQL 配置 (生产环境)
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "multi_ai_stream"
+    username: ""
+    password: ""
+
+# 平台配置
+platforms:
+  douyin:        # 抖音
+    enabled: false
+    type: "douyin"
+    rtmp_url: ""   # 从抖音创作者中心获取
+    stream_key: "" # 从抖音创作者中心获取
+    
+  kuaishou:      # 快手  
+    enabled: false
+    type: "kuaishou"
+    rtmp_url: ""
+    stream_key: ""
+    
+  wechat:        # 视频号
+    enabled: false
+    type: "wechat"
+    rtmp_url: ""
+    stream_key: ""
+
+# 输出配置
+output:
+  video_dir: "./output/videos"      # 视频输出目录
+  audio_dir: "./output/audio"       # 音频输出目录
+  default_fps: 25                    # 默认帧率
+  default_bitrate: 2500              # 推流比特率 (Kbps)
+
+# GPU 设备配置  
+device:
+  type: "auto"  # auto / cuda / mps / cpu
+  
+  # CUDA 配置 (NVIDIA GPU)
+  cuda:
+    device_id: 0
+    
+  # MPS 配置 (Apple Silicon)
+  mps:
+    enabled: true
+
+# 日志配置  
+logging:
+  level: "INFO"
+  file: "./logs/app.log"
+  max_size: 10485760  # 10MB
+  backup_count: 5

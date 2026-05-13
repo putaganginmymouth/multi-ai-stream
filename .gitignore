@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Data
+data/*.db
+!data/.gitkeep
+
+# Output
+output/
+*.mp4
+*.wav
+*.jpg
+*.png
+
+# Configuration (optional, keep secrets out of version control)
+configs/secrets.yaml
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# PyInstaller
+manifest.spec
+build.out
+
+# Multi-AI-Stream specific
+multi_ai_stream.db
