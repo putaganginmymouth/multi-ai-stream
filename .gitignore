@@ -70,3 +70,11 @@ build.out
 
 # Multi-AI-Stream specific
 multi_ai_stream.db
+
+# AI model files (too large for git)
+assets/avatars/liveportrait/repo/
+assets/avatars/liveportrait/weights/liveportrait/
+assets/avatars/liveportrait/weights/liveportrait_animals/
+assets/avatars/liveportrait/weights/insightface/
+assets/avatars/liveportrait/weights/docs/
+assets/avatars/liveportrait/weights/README.md
