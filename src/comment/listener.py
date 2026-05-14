@@ -155,16 +155,56 @@ class SimpleCommentListener(CommentListener):
 
 class DouyinCommentListener(CommentListener):
     """
-    抖音评论监听器 (预留实现)
-    
-    TODO: 集成抖音 WebSocket API
-    https://live.douyin.com/webcast/room/web/enter/
+    抖音评论监听器 — 基于 douyin-live 开源库 (v4.0)
+
+    依赖: pip install douyin-live
+    仓库: https://github.com/nicepkg/douyin-live
     """
-    
+
     def connect(self):
-        """连接抖音直播间"""
-        # TODO: 实现真实的 WebSocket 连接
-        raise NotImplementedError("抖音评论监听器暂未实现，请使用 SimpleCommentListener 测试")
+        """连接抖音直播间 WebSocket"""
+        try:
+            from douyin_live import DouyinLiveClient
+
+            room_id = self.config.get('live_rooms', {}).get('douyin', {}).get('room_id', '')
+            if not room_id:
+                self.error_occurred.emit("缺少抖音直播间 room_id 配置")
+                return
+
+            self._ws_client = DouyinLiveClient(room_id)
+
+            @self._ws_client.on('comment')
+            def on_comment(msg):
+                user = msg.get('user', {})
+                comment = Comment(
+                    platform='douyin',
+                    user_id=str(user.get('id', '')),
+                    username=user.get('nickname', ''),
+                    content=msg.get('content', '')
+                )
+                self._emit_comment(comment)
+
+            self._ws_client.start()
+            self.is_connected = True
+            self.connected.emit()
+            logger.info(f"抖音评论监听已连接: room_id={room_id}")
+
+        except ImportError:
+            msg = "douyin-live 未安装，请运行: pip install douyin-live"
+            logger.error(msg)
+            self.error_occurred.emit(msg)
+        except Exception as e:
+            logger.error(f"抖音评论连接失败: {e}")
+            self.error_occurred.emit(str(e))
+
+    def disconnect(self):
+        """断开抖音连接"""
+        if self._ws_client and self.is_connected:
+            try:
+                self._ws_client.stop()
+            except Exception:
+                pass
+        super().disconnect()
 
 
 class KuaishouCommentListener(CommentListener):

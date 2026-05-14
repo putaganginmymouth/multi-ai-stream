@@ -138,3 +138,25 @@ logging:
   file: "./logs/app.log"
   max_size: 10485760  # 10MB
   backup_count: 5
+
+# 播放引擎配置 (v4.0)
+playback:
+  enabled: true                       # 是否启用自动循环播放
+  loop_mode: "sequential"             # sequential | random
+  default_duration: 60                # 每个产品默认展示时长（秒）
+  transition_delay: 2                 # 产品切换过渡时间（秒）
+  tick_interval_ms: 100               # 状态机 tick 间隔（毫秒）
+  enable_comment_order: true          # 是否启用评论点播
+  order_match_min_confidence: 0.6     # 点播匹配最低置信度
+  order_cooldown_seconds: 10          # 点播冷却时间（秒）
+
+# 评论抓取配置 (v4.0)
+webhook:
+  enabled: false                      # 是否启用 WebHook 接收器
+  host: "0.0.0.0"
+  port: 8888
+  auth_token: ""                      # 可选：Bearer Token 鉴权
+
+live_rooms:
+  douyin:
+    room_id: ""                       # 抖音直播间 ID

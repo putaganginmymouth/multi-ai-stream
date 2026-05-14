@@ -113,6 +113,7 @@ class ProductAsset(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(200), nullable=False)           # 产品名称，如"1 号房车 - 豪华越野版"
+    product_alias = Column(String(500), default='')      # 🔗 产品别名(逗号分隔)，用于评论关键词匹配 (v4.0)
     video_path = Column(String(500), nullable=False)     # 视频文件路径
     product_detail = Column(Text, nullable=False)        # 📝 产品详细信息
     
@@ -152,6 +153,8 @@ class PublicQA(Base):
     keywords = Column(JSON, default=list)                 # 关键字列表
     enabled = Column(Boolean, default=True)               # 是否启用
     priority = Column(Integer, default=50)                # 优先级 (1-100)
+    linked_product_id = Column(Integer, ForeignKey('product_assets.id'), nullable=True)
+                                                          # 🔗 关联产品ID，命中此Q&A时可自动切换 (v4.0)
     
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)

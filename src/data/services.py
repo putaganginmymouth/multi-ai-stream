@@ -4,6 +4,7 @@ Data Services Layer - Business Logic Implementation
 """
 
 import json
+import time
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import logging
@@ -213,6 +214,19 @@ class ProductStateService(metaclass=SingletonMeta):
             logger.error(f"获取当前产品状态失败：{e}")
             return None
     
+    def get_all_products(self) -> List[Dict[str, Any]]:
+        """获取所有产品列表 (v4.0 — 用于播放引擎初始化)"""
+        return self.asset_repo.find_all(active_only=False)
+
+    def get_product_count(self) -> int:
+        """获取产品总数 (v4.0)"""
+        products = self.asset_repo.find_all(active_only=False)
+        return len(products)
+
+    def get_active_products(self) -> List[Dict[str, Any]]:
+        """获取活跃产品列表 (v4.0 — 用于播放循环)"""
+        return self.asset_repo.find_all(active_only=True)
+
     def end_current_showcase(self):
         """结束当前产品介绍"""
         
@@ -309,6 +323,53 @@ class CommentAggregator(metaclass=SingletonMeta):
         # 状态追踪
         self.user_last_comment = defaultdict(float)  # user_id -> last_comment_time
         self.user_reply_count = defaultdict(int)     # user_id -> reply_count_in_minute
+        
+        # v4.0: WebHook 接收器 & 播放引擎引用
+        self.webhook_receiver = None
+        self.playback_engine = None
+    
+    def set_playback_engine(self, engine):
+        """设置 PlaybackEngine 引用（用于评论点播）"""
+        self.playback_engine = engine
+    
+    def setup_webhook(self, config: Dict[str, Any]):
+        """初始化 WebHook 接收器 (v4.0)"""
+        from ..comment.webhook_receiver import WebHookReceiver
+        
+        self.webhook_receiver = WebHookReceiver(config)
+        self.webhook_receiver.comment_received.connect(self._on_webhook_comment)
+        
+        if config.get('webhook', {}).get('enabled', False):
+            self.webhook_receiver.start()
+    
+    def _on_webhook_comment(self, comment):
+        """处理 WebHook 评论 — 转为内部 Comment 对象并处理"""
+        # 去重/过滤
+        user_id = getattr(comment, 'user_id', '') or getattr(comment, 'username', 'unknown')
+        current_time = time.time()
+        
+        last_time = self.user_last_comment.get(user_id, 0)
+        if current_time - last_time < self.debounce_window:
+            return
+        
+        self.user_last_comment[user_id] = current_time
+        
+        # 送入点播引擎
+        if self.playback_engine:
+            from ..data.services import get_public_qa_service
+            qa_list = get_public_qa_service().get_all_public_qa(enabled_only=True)
+            self.playback_engine.handle_comment(
+                username=getattr(comment, 'username', ''),
+                content=getattr(comment, 'content', ''),
+                public_qa=qa_list
+            )
+        
+        # 触发回调链
+        for callback in self._callbacks:
+            try:
+                callback(comment)
+            except Exception as e:
+                logger.error(f"评论处理回调异常：{e}")
     
     def register_adapter(self, platform: str, adapter):
         """注册平台适配器"""

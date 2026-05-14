@@ -67,3 +67,23 @@ class DeviceType(StrEnum):
     CUDA = "cuda"                  # NVIDIA GPU
     MPS = "mps"                    # Apple Silicon
     AUTO = "auto"                  # 自动选择
+
+
+class PlaybackState(StrEnum):
+    """播放引擎状态枚举 (v4.0)"""
+    IDLE = "idle"               # 未启动
+    LOADING = "loading"         # 加载产品列表中
+    PLAYING = "playing"         # 正常循环播放中
+    SWITCHING = "switching"     # 正在切换产品（评论点播触发）
+    ALIGNING = "aligning"       # 正在对齐分段
+    PAUSED = "paused"           # 已暂停
+    STOPPED = "stopped"         # 已停止
+    ERROR = "error"             # 错误状态
+
+
+class PipelineBufferState(StrEnum):
+    """流式管线缓冲区状态 (v4.0)"""
+    EMPTY = "empty"             # 缓冲区空
+    LOADING = "loading"         # 正在加载/生成
+    READY = "ready"             # 下一段就绪
+    PLAYING = "playing"         # 播放中

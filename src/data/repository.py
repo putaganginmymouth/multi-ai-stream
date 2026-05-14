@@ -204,7 +204,7 @@ class ProductAssetRepository:
                 # 更新
                 conn.execute(text("""
                     UPDATE product_assets 
-                    SET name=:name, video_path=:video_path, product_detail=:product_detail,
+                    SET name=:name, product_alias=:product_alias, video_path=:video_path, product_detail=:product_detail,
                         duration=:duration, width=:width, height=:height,
                         script_text=:script_text, script_segments=:script_segments,
                         qa_pairs=:qa_pairs, is_active=:is_active
@@ -213,9 +213,9 @@ class ProductAssetRepository:
             else:
                 # 插入
                 result = conn.execute(text("""
-                    INSERT INTO product_assets (name, video_path, product_detail, duration, 
+                    INSERT INTO product_assets (name, product_alias, video_path, product_detail, duration, 
                                                 width, height, script_text, script_segments, qa_pairs, is_active)
-                    VALUES (:name, :video_path, :product_detail, :duration, 
+                    VALUES (:name, :product_alias, :video_path, :product_detail, :duration, 
                             :width, :height, :script_text, :script_segments, :qa_pairs, :is_active)
                 """), asset_data)
                 conn.commit()
@@ -239,6 +239,18 @@ class ProductAssetRepository:
                 result = conn.execute(text("SELECT * FROM product_assets ORDER BY created_at DESC"))
             return [dict(row._mapping) for row in result]
     
+    def find_by_alias(self, keyword: str) -> Optional[Dict[str, Any]]:
+        """根据别名关键词查找产品 (v4.0)"""
+        with self.engine.connect() as conn:
+            result = conn.execute(text("SELECT * FROM product_assets"), {})
+            rows = [dict(row._mapping) for row in result]
+            for row in rows:
+                aliases = (row.get('product_alias', '') or '').split(',')
+                for alias in aliases:
+                    if alias.strip() and alias.strip() in keyword:
+                        return row
+        return None
+
     def update_qa_pairs(self, asset_id: int, qa_pairs: list):
         """更新产品的 Q&A 配置"""
         with self.engine.connect() as conn:
