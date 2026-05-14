@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from core.config import ConfigManager
 from core.enums import LogLevel
@@ -48,7 +48,7 @@ def create_gui(config):
     except ImportError as e:
         logging.error(f"GUI 模块导入失败：{e}")
         logging.info("运行命令行模式...")
-        run_cli_mode(config)
+        create_cli(config)
 
 
 def create_cli(config):
@@ -73,10 +73,10 @@ def main():
     """主函数"""
     try:
         # 加载配置
-        config = ConfigManager.get_instance()
+        cfg = ConfigManager.get_instance()
         
         # 设置日志
-        setup_logging(config.to_dict())
+        setup_logging(cfg)
         
         logging.info("Multi-AI-Stream 启动中...")
         
@@ -89,10 +89,10 @@ def main():
             pass
         
         if gui_available:
-            create_gui(config)
+            create_gui(cfg.to_dict())
         else:
             logging.warning("PyQt6 未安装，运行 CLI 模式")
-            create_cli(config)
+            create_cli(cfg.to_dict())
             
     except KeyboardInterrupt:
         logging.info("程序被用户中断")

@@ -10,6 +10,7 @@ import numpy as np
 from .base_avatar import BaseAvatar
 from ..core.enums import DeviceType
 from ..core.exceptions import AvatarError, ModelNotFoundError
+from ..core.device import get_optimal_device
 
 logger = logging.getLogger(__name__)
 
@@ -191,23 +192,11 @@ class LivePortraitEngine(BaseAvatar):
     
     def _detect_best_device(self) -> DeviceType:
         """检测最佳可用设备"""
-        # 检查 CUDA (NVIDIA GPU)
+        optimal = get_optimal_device()
         try:
-            import torch
-            if torch.cuda.is_available():
-                return DeviceType.CUDA
-        except ImportError:
-            pass
-        
-        # 检查 MPS (Apple Silicon)
-        try:
-            import torch
-            if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-                return DeviceType.MPS
-        except ImportError:
-            pass
-        
-        return DeviceType.CPU
+            return DeviceType(optimal)
+        except ValueError:
+            return DeviceType.CPU
     
     def get_engine_info(self) -> Dict[str, Any]:
         """获取引擎信息"""

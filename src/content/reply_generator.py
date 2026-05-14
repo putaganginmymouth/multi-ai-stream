@@ -8,6 +8,7 @@ import time
 from typing import Optional, Dict, Any, List
 import threading
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +103,6 @@ class ReplyGeneratorHandler:
     def _try_llm_generate(self, comment: str, product_detail: str) -> Optional[Dict]:
         """尝试 LLM 生成，失败返回 None"""
         
-        import requests
-        
         result_container = {'reply': None, 'error': None}
         
         def llm_thread():
@@ -134,8 +133,6 @@ class ReplyGeneratorHandler:
     
     def _call_llm_api(self, comment: str, product_detail: str) -> str:
         """调用 LLM API (DeepSeek)"""
-        
-        import requests
         
         prompt = f"""{self.system_prompt}
 

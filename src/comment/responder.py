@@ -4,6 +4,7 @@ Responder - 评论自动回复引擎
 """
 
 import logging
+import time
 from typing import Dict, Any, Optional, List
 from random import choice
 
@@ -31,7 +32,6 @@ class Responder:
     
     def should_reply(self) -> bool:
         """检查是否应该回复 (频率控制)"""
-        import time
         if time.time() - self.last_reply_time < self.min_delay:
             return False
         return True
@@ -45,7 +45,7 @@ class Responder:
         response = self._generate_response(comment)
         
         if response:
-            self.last_reply_time = __import__('time').time()
+            self.last_reply_time = time.time()
         
         return response
     

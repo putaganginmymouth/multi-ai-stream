@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
         self.is_streaming = False
         
         # StreamManager (多平台并发控制器)
-        from ..stream import StreamManager
+        from ..stream.stream_manager import StreamManager
         self.stream_manager = StreamManager(config, use_obs=False)  # 默认使用模拟模式测试
         
         # 连接信号槽

@@ -49,6 +49,9 @@ class ContentPipeline(Base):
         # 输出目录
         self._output_dir = Path(config.get('output_dir', './output'))
         self._output_dir.mkdir(parents=True, exist_ok=True)
+
+        # 阶段追踪
+        self._stages_completed = []
     
     def process(self, property_info: str, avatar_engine=None, 
                 output_name: Optional[str] = None) -> Dict[str, Any]:
@@ -117,9 +120,6 @@ class ContentPipeline(Base):
         handler = self.handlers[ScriptStage.SCRIPT_GENERATION]
         script = handler.handle(property_info)
         
-        # 修复：使用实例变量追踪已完成的阶段
-        if not hasattr(self, '_stages_completed'):
-            self._stages_completed = []
         if ScriptStage.SCRIPT_GENERATION not in self._stages_completed:
             self._stages_completed.append(ScriptStage.SCRIPT_GENERATION)
         
@@ -130,9 +130,6 @@ class ContentPipeline(Base):
         handler = self.handlers[ScriptStage.TTS_SYNTHESIS]
         audio_path = handler.handle(script, self._output_dir / f"{output_name}.wav")
         
-        # 修复：使用实例变量追踪已完成的阶段
-        if not hasattr(self, '_stages_completed'):
-            self._stages_completed = []
         if ScriptStage.TTS_SYNTHESIS not in self._stages_completed:
             self._stages_completed.append(ScriptStage.TTS_SYNTHESIS)
         
@@ -145,8 +142,6 @@ class ContentPipeline(Base):
         
         video_path = self._output_dir / f"{output_name}_synced.mp4"
         
-        if not hasattr(self, '_stages_completed'):
-            self._stages_completed = []
         if ScriptStage.LIP_SYNC not in self._stages_completed:
             self._stages_completed.append(ScriptStage.LIP_SYNC)
         

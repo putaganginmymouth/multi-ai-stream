@@ -4,6 +4,7 @@ Comment Listener - 直播间评论监听器
 """
 
 import logging
+import time
 from typing import Dict, Any, Optional, Callable
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 
@@ -19,7 +20,7 @@ class Comment:
         self.user_id = user_id
         self.username = username
         self.content = content
-        self.timestamp = timestamp or int(__import__('time').time())
+        self.timestamp = timestamp or int(time.time())
     
     def __repr__(self):
         return f"Comment({self.platform}, {self.username}: {self.content})"

@@ -45,28 +45,39 @@ class DouyinPlatform(BasePlatform):
             raise PlatformError("抖音推流密钥不能为空", "CONFIG_ERROR")
     
     def _connect_obs(self) -> bool:
-        """连接 OBS WebSocket"""
-        try:
-            if obs_websocket is None:
-                logger.error("obs-websocket 未安装，请运行：pip install obs-websocket-py")
-                return False
-            
-            # 从配置获取 OBS 连接信息
-            host = self.config.get('obs', {}).get('host', 'localhost')
-            port = self.config.get('obs', {}).get('port', 4455)
-            password = self.config.get('obs', {}).get('password', '')
-            
-            self._obs_client = obs_websocket.obs_websocket()
-            self._obs_client.connect(host, port, password)
-            
-            # 测试连接
-            if self._obs_client.is_connected():
-                logger.info(f"OBS WebSocket 连接成功：{host}:{port}")
-                return True
-            
-        except Exception as e:
-            logger.error(f"OBS WebSocket 连接失败：{e}")
+        """连接 OBS WebSocket (支持指数退避重试)"""
+        import time
         
+        # OBS 重试配置
+        max_retries = self.config.get('obs', {}).get('max_retries', 3)
+        retry_delay = self.config.get('obs', {}).get('retry_delay', 2)
+        
+        if obs_websocket is None:
+            logger.error("obs-websocket 未安装，请运行：pip install obs-websocket-py")
+            return False
+        
+        host = self.config.get('obs', {}).get('host', 'localhost')
+        port = self.config.get('obs', {}).get('port', 4455)
+        password = self.config.get('obs', {}).get('password', '')
+        
+        for attempt in range(max_retries):
+            try:
+                self._obs_client = obs_websocket.obs_websocket()
+                self._obs_client.connect(host, port, password)
+                
+                if self._obs_client.is_connected():
+                    logger.info(f"OBS WebSocket 连接成功：{host}:{port}")
+                    return True
+                    
+            except Exception as e:
+                wait_time = retry_delay * (2 ** attempt)
+                logger.warning(
+                    f"OBS 连接失败 (第{attempt+1}/{max_retries}次): {e}. " 
+                    f"{wait_time}s 后重试..."
+                )
+                time.sleep(wait_time)
+        
+        logger.error(f"OBS 连接失败，已重试 {max_retries} 次")
         return False
     
     def _disconnect_obs(self):

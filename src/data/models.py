@@ -202,14 +202,4 @@ class SystemConfig(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
 
-# 新增 JSON 类型支持 (SQLAlchemy 2.0+)
-try:
-    from sqlalchemy import JSON
-except ImportError:
-    from sqlalchemy.dialects.mysql import JSON as MySQLJSON
-    from sqlalchemy.dialects.postgresql import JSON as PostgreSQLJSON
-    
-    def get_json_type():
-        """根据数据库类型返回正确的 JSON 列类型"""
-        # 这里使用通用方式，实际使用时会根据数据库自动选择
-        return Column(Text)  # 降级为 Text 存储 JSON 字符串
+

@@ -10,7 +10,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QTimer
 from sqlalchemy.orm import Session
 
 from ..data.models import Schedule as ScheduleModel
-from ..core.enums import LiveStatus
+from ..core.enums import LiveStatus, PlatformType
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +137,14 @@ class SchedulerService(QObject):
         
         Returns:
             ScheduledTask: 创建的任务对象
+        
+        Raises:
+            ValueError: 平台类型无效
         """
+        # 验证平台类型
+        valid_platforms = [p.value for p in PlatformType if p != PlatformType.CUSTOM]
+        if platform not in valid_platforms:
+            raise ValueError(f"无效平台类型: {platform}，支持: {valid_platforms}")
         # 保存到数据库
         schedule_model = ScheduleModel(
             platform_id=None,  # TODO: 关联平台表 ID

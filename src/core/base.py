@@ -1,12 +1,32 @@
-"""
+'''
 Base Classes and Abstract Base Classes
 基础类和抽象基类定义
-"""
+'''
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
+from threading import Lock
+
+
+class SingletonMeta(type):
+    """线程安全的单例元类
+    
+    用法:
+        class MyService(metaclass=SingletonMeta):
+            def __init__(self):
+                self.data = []
+    """
+    _instances: Dict[type, Any] = {}
+    _lock = Lock()
+    
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            with cls._lock:
+                if cls not in cls._instances:
+                    cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class Base:

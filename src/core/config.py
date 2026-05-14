@@ -55,6 +55,14 @@ class ConfigManager(Base):
             cls._instance = cls(config_path)
         return cls._instance
     
+    def _validate_config(self) -> bool:
+        """验证配置完整性"""
+        required_keys = ['app', 'obs', 'avatar', 'llm', 'tts', 'database', 'platforms']
+        for key in required_keys:
+            if key not in self._config:
+                return False
+        return True
+
     def _load_config(self):
         """加载配置文件"""
         try:

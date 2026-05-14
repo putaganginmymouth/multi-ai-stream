@@ -7,6 +7,8 @@ import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import logging
+from pathlib import Path
+from ..core.base import SingletonMeta
 
 logger = logging.getLogger(__name__)
 
@@ -15,29 +17,16 @@ logger = logging.getLogger(__name__)
 # PublicQAService (公共 Q&A 管理服务)
 # ============================================================================
 
-class PublicQAService:
+class PublicQAService(metaclass=SingletonMeta):
     """公共 Q&A 管理服务"""
     
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
     def __init__(self):
-        if self._initialized:
-            return
-        
-        from .repository import PublicQARepository, get_db_session
-        from pathlib import Path
+        from .repository import PublicQARepository
         
         # Use project root's data directory
-        db_path = str(Path(__file__).parent.parent / 'data' / 'multistream.db')
+        repo_root = Path(__file__).parent.parent.parent
+        db_path = str(repo_root / 'data' / 'multistream.db')
         self.repository = PublicQARepository(db_path)
-        
-        self._initialized = True
     
     def add_public_qa(self, question: str, answer: str, 
                      keywords: List[str] = None, priority: int = 50) -> int:
@@ -163,30 +152,17 @@ class PublicQAService:
 # ProductStateService (产品介绍状态管理)
 # ============================================================================
 
-class ProductStateService:
+class ProductStateService(metaclass=SingletonMeta):
     """产品介绍状态管理服务"""
     
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
     def __init__(self):
-        if self._initialized:
-            return
+        from .repository import CurrentProductStateRepository, ProductAssetRepository
         
-        from .repository import CurrentProductStateRepository, ProductAssetRepository, get_db_session
-        from pathlib import Path
-        
-        db_path = str(Path(__file__).parent.parent.parent / 'data' / 'multistream.db')
+        repo_root = Path(__file__).parent.parent.parent
+        db_path = str(repo_root / 'data' / 'multistream.db')
         
         self.state_repo = CurrentProductStateRepository(db_path)
         self.asset_repo = ProductAssetRepository(db_path)
-        
-        self._initialized = True
     
     def set_current_product(self, product_id: int, product_name: str, 
                            product_detail: str) -> bool:
@@ -258,29 +234,16 @@ class ProductStateService:
 # LiveRoomConfigService (直播间配置管理)
 # ============================================================================
 
-class LiveRoomConfigService:
+class LiveRoomConfigService(metaclass=SingletonMeta):
     """直播间配置管理服务"""
     
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
     def __init__(self):
-        if self._initialized:
-            return
+        from .repository import LiveRoomConfigRepository
         
-        from .repository import LiveRoomConfigRepository, get_db_session
-        from pathlib import Path
-        
-        db_path = str(Path(__file__).parent.parent.parent / 'data' / 'multistream.db')
+        repo_root = Path(__file__).parent.parent.parent
+        db_path = str(repo_root / 'data' / 'multistream.db')
         
         self.repository = LiveRoomConfigRepository(db_path)
-        
-        self._initialized = True
     
     def set_loop_mode(self, mode: str) -> bool:
         """设置循环模式"""
@@ -326,22 +289,10 @@ class LiveRoomConfigService:
 # CommentAggregator (多平台评论聚合器)
 # ============================================================================
 
-class CommentAggregator:
+class CommentAggregator(metaclass=SingletonMeta):
     """多平台评论聚合与处理"""
     
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-    
     def __init__(self):
-        if self._initialized:
-            return
-        
-        from datetime import datetime
         from collections import defaultdict
         import time
         
@@ -358,8 +309,6 @@ class CommentAggregator:
         # 状态追踪
         self.user_last_comment = defaultdict(float)  # user_id -> last_comment_time
         self.user_reply_count = defaultdict(int)     # user_id -> reply_count_in_minute
-        
-        self._initialized = True
     
     def register_adapter(self, platform: str, adapter):
         """注册平台适配器"""

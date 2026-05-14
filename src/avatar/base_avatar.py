@@ -132,18 +132,20 @@ class BaseAvatar(Configurable):
     
     def _temp_audio_path(self, audio_data: bytes) -> str:
         """临时音频文件路径"""
-        import tempfile
+        import tempfile, os
         fd, path = tempfile.mkstemp(suffix='.wav')
+        os.close(fd)
         with open(path, 'wb') as f:
             f.write(audio_data)
         return path
     
     def _temp_image_path(self, image: np.ndarray) -> str:
         """临时图像文件路径"""
-        import tempfile
+        import tempfile, os
         from PIL import Image
         
         fd, path = tempfile.mkstemp(suffix='.jpg')
+        os.close(fd)
         img = Image.fromarray(image)
         img.save(path)
         return path
